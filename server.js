@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import sequelize from './db.js';
 
 import authRoutes from './routes/auth.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
@@ -41,6 +42,12 @@ app.get('/api/dashboard', authMiddleware, (req, res) => {
 });
 
 app.get('/', (req, res) => res.send('Backend Express berjalan'));
+
+import sequelize from './db.js';
+sequelize.authenticate()
+  .then(() => console.log('Database connected!'))
+  .catch(err => console.error('Unable to connect to DB:', err));
+
 
 app.listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
