@@ -13,6 +13,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
+// ===== FIX PROXY =====
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
