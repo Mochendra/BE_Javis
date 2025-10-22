@@ -17,19 +17,14 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 app.use(express.json());
 app.use(cookieParser());
 
-// CORS single config
-app.use(cors({
+// CORS config
+const corsOptions = {
   origin: FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
-}));
-
-// Explicit preflight handler
-app.options('*', cors({
-  origin: FRONTEND_URL,
-  credentials: true
-}));
+};
+app.use(cors(corsOptions));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -38,11 +33,17 @@ app.get('/api/dashboard', authMiddleware, (req, res) => {
 });
 app.get('/', (req, res) => res.send('Backend Express berjalan'));
 
+// Catch-all route (404)
+app.all('*', (req, res) => {
+  res.status(404).json({ message: 'Route tidak ditemukan' });
+});
+
 // DB connect
 sequelize.authenticate()
   .then(() => console.log('Database connected!'))
   .catch(err => console.error('Unable to connect to DB:', err));
 
+// Start server
 app.listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
 });
