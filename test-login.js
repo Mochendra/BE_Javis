@@ -16,6 +16,6 @@ const pool = poolModule;
   }
 
   const match = await bcrypt.compare(password, user.password_hash);
-  if (match) console.log('Password cocok ✅');
-  else console.log('Password salah ❌');
+  if (match) console.log('Password cocok');
+  else console.log('Password salah');
 })();

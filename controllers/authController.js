@@ -14,29 +14,6 @@ const cookieOptions = {
   maxAge: 1000 * 60 * 60
 };
 
-export async function register(req, res) {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password) return res.status(400).json({ error: 'Semua field wajib diisi' });
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) return res.status(400).json({ error: 'Format email tidak valid' });
-
-  try {
-    const [rows] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
-    if (rows.length > 0) return res.status(409).json({ error: 'Email sudah terdaftar' });
-
-    const hash = await bcrypt.hash(password, 10);
-
-    const [result] = await pool.query(
-      'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
-      [name, email, hash]
-    );
-    return res.status(201).json({ message: 'Registrasi berhasil', userId: result.insertId });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Terjadi kesalahan server' });
-  }
-}
 
 export async function login(req, res) {
   const { email, password } = req.body;

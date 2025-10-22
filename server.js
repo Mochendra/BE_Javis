@@ -20,14 +20,14 @@ app.use(cookieParser());
 // CORS config
 app.use(cors({
   origin: FRONTEND_URL,
-  credentials: true, // penting!
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Handle preflight request
 app.use(cors({
-  origin: FRONTEND_URL, // HARUS spesifik, bukan '*'
+  origin: FRONTEND_URL, 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
@@ -36,14 +36,12 @@ app.use(cors({
 // Routes
 app.use('/api/auth', authRoutes);
 
-// Protected route example
 app.get('/api/dashboard', authMiddleware, (req, res) => {
   res.json({ message: `Selamat datang di dashboard, ${req.user.name}` });
 });
 
 app.get('/', (req, res) => res.send('Backend Express berjalan'));
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
 });
