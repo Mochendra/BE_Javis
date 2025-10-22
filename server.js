@@ -33,11 +33,6 @@ app.get('/api/dashboard', authMiddleware, (req, res) => {
 });
 app.get('/', (req, res) => res.send('Backend Express berjalan'));
 
-// Catch-all route (404)
-app.all('*', (req, res) => {
-  res.status(404).json({ message: 'Route tidak ditemukan' });
-});
-
 // DB connect
 sequelize.authenticate()
   .then(() => console.log('Database connected!'))
