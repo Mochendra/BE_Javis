@@ -2,6 +2,8 @@ import pool from '../config/db.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import sequelize from '../config/db.js';
+import { QueryTypes } from 'sequelize';
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'ubah_rahasia_jwt_yg_panjang';
@@ -43,10 +45,14 @@ export async function login(req, res) {
   if (!email || !password) return res.status(400).json({ error: 'Email dan password wajib diisi' });
 
   try {
-    const [rows] = await pool.query(
-      'SELECT id, name, email, password_hash, role FROM users WHERE email = ?',
-      [email]
+    const rows = await sequelize.query(
+      'SELECT id, name, email, password_hash, role FROM users WHERE email = :email',
+      {
+        replacements: { email },
+        type: QueryTypes.SELECT
+      }
     );
+
     const user = rows[0];
     if (!user) return res.status(401).json({ error: 'Email atau password salah' });
 
@@ -57,12 +63,38 @@ export async function login(req, res) {
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
     res.cookie('token', token, cookieOptions);
-    return res.json({ message: 'Login berhasil' });
+    return res.json({ message: 'Login berhasil', token });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Terjadi kesalahan server' });
   }
 }
+
+// export async function login(req, res) {
+//   const { email, password } = req.body;
+//   if (!email || !password) return res.status(400).json({ error: 'Email dan password wajib diisi' });
+
+//   try {
+//     const [rows] = await pool.query(
+//       'SELECT id, name, email, password_hash, role FROM users WHERE email = ?',
+//       [email]
+//     );
+//     const user = rows[0];
+//     if (!user) return res.status(401).json({ error: 'Email atau password salah' });
+
+//     const match = await bcrypt.compare(password, user.password_hash);
+//     if (!match) return res.status(401).json({ error: 'Email atau password salah' });
+
+//     const payload = { id: user.id, name: user.name, email: user.email, role: user.role };
+//     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+
+//     res.cookie('token', token, cookieOptions);
+//     return res.json({ message: 'Login berhasil' });
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({ error: 'Terjadi kesalahan server' });
+//   }
+// }
 
 export async function logout(req, res) {
   res.clearCookie('token', { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
