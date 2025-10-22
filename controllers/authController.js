@@ -45,6 +45,7 @@ export async function login(req, res) {
   if (!email || !password) return res.status(400).json({ error: 'Email dan password wajib diisi' });
 
   try {
+    // gunakan sequelize.query dengan named replacement agar parameter ter-bind dengan benar
     const rows = await sequelize.query(
       'SELECT id, name, email, password_hash, role FROM users WHERE email = :email',
       {
@@ -62,14 +63,14 @@ export async function login(req, res) {
     const payload = { id: user.id, name: user.name, email: user.email, role: user.role };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
+    // set cookie dan juga return token di JSON supaya frontend bisa simpan jika perlu
     res.cookie('token', token, cookieOptions);
     return res.json({ message: 'Login berhasil', token });
   } catch (err) {
-    console.error(err);
+    console.error('Login error:', err);
     return res.status(500).json({ error: 'Terjadi kesalahan server' });
   }
 }
-
 // export async function login(req, res) {
 //   const { email, password } = req.body;
 //   if (!email || !password) return res.status(400).json({ error: 'Email dan password wajib diisi' });
