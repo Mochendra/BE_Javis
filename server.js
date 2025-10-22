@@ -43,7 +43,6 @@ app.get('/api/dashboard', authMiddleware, (req, res) => {
 
 app.get('/', (req, res) => res.send('Backend Express berjalan'));
 
-import sequelize from './db.js';
 sequelize.authenticate()
   .then(() => console.log('Database connected!'))
   .catch(err => console.error('Unable to connect to DB:', err));
