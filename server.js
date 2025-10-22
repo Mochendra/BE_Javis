@@ -11,42 +11,37 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 
-// CORS config
+// CORS single config
 app.use(cors({
   origin: FRONTEND_URL,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-// Handle preflight request
-app.use(cors({
-  origin: FRONTEND_URL, 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
 
+// Explicit preflight handler
+app.options('*', cors({
+  origin: FRONTEND_URL,
+  credentials: true
+}));
+
 // Routes
 app.use('/api/auth', authRoutes);
-
 app.get('/api/dashboard', authMiddleware, (req, res) => {
   res.json({ message: `Selamat datang di dashboard, ${req.user.name}` });
 });
-
 app.get('/', (req, res) => res.send('Backend Express berjalan'));
 
+// DB connect
 sequelize.authenticate()
   .then(() => console.log('Database connected!'))
   .catch(err => console.error('Unable to connect to DB:', err));
-
 
 app.listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
